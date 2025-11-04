@@ -15,7 +15,7 @@
 
 # Environments
 .venv
-
+.env
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -26,3 +26,4 @@ wheels/
 /__pycache__
 
 tmp
+*.pem

@@ -11,12 +11,12 @@ from typing import Dict, Optional
 class ClusterInfo(BaseModel):
     """Model representing OpenSearch cluster configuration."""
 
-    opensearch_url: str
+    opensearch_url: str = os.getenv('OPENSEARCH_URL')
     iam_arn: Optional[str] = None
-    aws_region: Optional[str] = None
+    aws_region: Optional[str] = os.getenv('AWS_REGION')
     opensearch_username: Optional[str] = None
     opensearch_password: Optional[str] = None
-    profile: Optional[str] = None
+    profile: Optional[str] = os.getenv('OPENSEARCH_PROFILE')
     is_serverless: Optional[bool] = None
     timeout: Optional[int] = None
 

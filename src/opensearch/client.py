@@ -127,8 +127,11 @@ def initialize_client_with_cluster(cluster_info: ClusterInfo | None) -> OpenSear
         cluster_info.opensearch_url if cluster_info else os.getenv('OPENSEARCH_URL', '')
     )
     if not opensearch_url:
+        opensearch_url = os.getenv('OPENSEARCH_URL_DOCKER')
+
+    if not opensearch_url:
         raise ValueError(
-            'OpenSearch URL must be provided using config file or OPENSEARCH_URL environment variable'
+            'OpenSearch URL/Docker must be provided using config file or environment variable'
         )
     opensearch_username = (
         cluster_info.opensearch_username if cluster_info else os.getenv('OPENSEARCH_USERNAME', '')
@@ -246,6 +249,19 @@ def initialize_client(args: baseToolArgs) -> OpenSearch:
         OpenSearch: An initialized OpenSearch client instance
     """
     cluster_info = None
-    if args and args.opensearch_cluster_name:
+
+    #local docker-compose setup
+    if os.getenv('OPENSEARCH_URL_DOCKER')!= None:
+        url = os.getenv('OPENSEARCH_URL_DOCKER')
+        parsed_url = urlparse(url)
+        return OpenSearch(
+            hosts=[url],
+            http_auth=(os.getenv('OPENSEARCH_USERNAME'), os.getenv('OPENSEARCH_PASSWORD')),
+            use_ssl=(parsed_url.scheme == 'https'),
+            verify_certs=False,
+            connection_class=RequestsHttpConnection,
+            timeout=int(os.getenv('OPENSEARCH_TIMEOUT', '30'))
+        )
+    elif args and args.opensearch_cluster_name:
         cluster_info = get_cluster(args.opensearch_cluster_name)
     return initialize_client_with_cluster(cluster_info)
